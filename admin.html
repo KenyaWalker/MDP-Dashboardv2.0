@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - MDP Performance Dashboard</title>
+    <style>
+        :root {
+            --primary: #0062AD;
+            --secondary: #00358E;
+            --tertiary: #11224B;
+            --accent1: #35C4EC;
+            --white: #FFFFFF;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --neutral2: #D0D3D4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--tertiary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .header-title {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            background: var(--light);
+            padding: 1rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--neutral2);
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin: 0 1rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--white);
+            color: var(--primary);
+            text-decoration: none;
+            border: 2px solid var(--primary);
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .admin-section {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.06);
+            border: 1px solid var(--neutral2);
+        }
+
+        .section-title {
+            color: var(--tertiary);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            border: 1px solid var(--neutral2);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--neutral2);
+        }
+
+        .data-table th {
+            background: var(--light);
+            font-weight: 600;
+            color: var(--tertiary);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--light);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+
+        .export-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .export-section {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <img src="SC_Logo_Symbol_RGB_WHT.png" alt="Sam's Club" class="logo">
+            <h1 class="header-title">Admin Panel</h1>
+        </div>
+    </div>
+
+    <div class="nav-links">
+        <a href="/" class="nav-link">📝 Submit Evaluation</a>
+        <a href="/dashboard.html" class="nav-link">📊 View Dashboard</a>
+    </div>
+
+    <div class="container">
+        <!-- Statistics Section -->
+        <div class="admin-section">
+            <h2 class="section-title">System Statistics</h2>
+            <div class="stats-grid" id="statsGrid">
+                <div class="loading">Loading statistics...</div>
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div class="admin-section">
+            <h2 class="section-title">Data Export</h2>
+            <div class="export-section">
+                <button class="btn btn-primary" onclick="exportAllData('csv')">
+                    📊 Export All Data (CSV)
+                </button>
+                <button class="btn btn-primary" onclick="exportAllData('json')">
+                    💾 Export All Data (JSON)
+                </button>
+                <button class="btn btn-primary" onclick="generateReport()">
+                    📄 Generate Performance Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Data Management Section -->
+        <div class="admin-section">
+            <h2 class="section-title">Data Management</h2>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>MDP Name</th>
+                            <th>Function</th>
+                            <th>Manager</th>
+                            <th>Submitted</th>
+                            <th>Composite Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <tr>
+                            <td colspan="7" class="loading">Loading data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin Panel JavaScript
+        const API_BASE = window.location.origin;
+
+        class AdminPanel {
+            constructor() {
+                this.data = [];
+                this.stats = {};
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadData();
+                    await this.loadStats();
+                    this.renderStats();
+                    this.renderDataTable();
+                } catch (error) {
+                    console.error('Failed to initialize admin panel:', error);
+                    this.showError('Failed to load admin panel data');
+                }
+            }
+
+            async loadData() {
+                try {
+                    const response = await fetch(`${API_BASE}/api/survey-responses`);
+                    if (!response.ok) throw new Error('Failed to fetch data');
+                    this.data = await response.json();
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    this.showError('Failed to load survey data');
+                }
+            }
+
+            async loadStats() {
+                try {
+                    const response = await fetch(`${API_BASE}/api/survey-stats`);
+                    if (!response.ok) throw new Error('Failed to fetch stats');
+                    this.stats = await response.json();
+                } catch (error) {
+                    console.error('Error loading stats:', error);
+                    this.stats = this.calculateLocalStats();
+                }
+            }
+
+            calculateLocalStats() {
+                const totalResponses = this.data.length;
+                const uniqueMdps = new Set(this.data.map(r => r.mdpName)).size;
+                const uniqueManagers = new Set(this.data.map(r => r.managerName)).size;
+                
+                const functionBreakdown = {};
+                this.data.forEach(response => {
+                    functionBreakdown[response.function] = 
+                        (functionBreakdown[response.function] || 0) + 1;
+                });
+
+                return {
+                    totalResponses,
+                    uniqueMdps,
+                    uniqueManagers,
+                    functionBreakdown
+                };
+            }
+
+            renderStats() {
+                const statsGrid = document.getElementById('statsGrid');
+                
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${this.stats.totalResponses || 0}</div>
+                        <div class="stat-label">Total Evaluations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${this.stats.uniqueMdps || 0}</div>
+                        <div class="stat-label">Unique MDPs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${this.stats.uniqueManagers || 0}</div>
+                        <div class="stat-label">Unique Managers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${Object.keys(this.stats.functionBreakdown || {}).length}</div>
+                        <div class="stat-label">Functions</div>
+                    </div>
+                `;
+            }
+
+            renderDataTable() {
+                const tableBody = document.getElementById('dataTableBody');
+                
+                if (this.data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="7" class="loading">No data available</td></tr>';
+                    return;
+                }
+
+                tableBody.innerHTML = this.data.map(item => `
+                    <tr>
+                        <td><small>${item.id}</small></td>
+                        <td><strong>${item.mdpName}</strong></td>
+                        <td>${item.function}</td>
+                        <td>${item.managerName}</td>
+                        <td><small>${new Date(item.timestamp).toLocaleDateString()}</small></td>
+                        <td><span style="background: var(--${this.getScoreColor(item.compositeScore)}); color: white; padding: 0.2rem 0.5rem; border-radius: 0.5rem; font-size: 0.8rem;">${item.compositeScore ? item.compositeScore.toFixed(2) : 'N/A'}</span></td>
+                        <td>
+                            <button class="btn btn-danger" onclick="admin.deleteResponse('${item.id}')" title="Delete Response">
+                                🗑️
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            getScoreColor(score) {
+                if (!score) return 'neutral';
+                if (score >= 4.0) return 'success';
+                if (score >= 3.0) return 'warning';
+                return 'danger';
+            }
+
+            async deleteResponse(id) {
+                if (!confirm('Are you sure you want to delete this evaluation? This action cannot be undone.')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/api/survey-responses/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to delete response');
+                    }
+
+                    this.showSuccess('Evaluation deleted successfully');
+                    await this.init(); // Reload data
+                } catch (error) {
+                    console.error('Error deleting response:', error);
+                    this.showError('Failed to delete evaluation');
+                }
+            }
+
+            showSuccess(message) {
+                this.showNotification(message, 'success');
+            }
+
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: var(--${type === 'success' ? 'success' : 'danger'});
+                    color: white;
+                    padding: 1rem 2rem;
+                    border-radius: 0.5rem;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                    z-index: 1000;
+                    font-weight: 600;
+                    max-width: 400px;
+                `;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.remove(), 5000);
+            }
+        }
+
+        // Global functions for UI interactions
+        function exportAllData(format) {
+            if (format === 'csv') {
+                admin.exportCSV();
+            } else if (format === 'json') {
+                admin.exportJSON();
+            }
+        }
+
+        function generateReport() {
+            window.print();
+        }
+
+        // Add export methods to AdminPanel
+        AdminPanel.prototype.exportCSV = function() {
+            const headers = ['ID', 'MDP Name', 'Function', 'Manager', 'Rotation', 'Submitted', 'Job Knowledge', 'Quality of Work', 'Communication', 'Initiative', 'Composite Score'];
+            const rows = this.data.map(item => [
+                item.id,
+                item.mdpName,
+                item.function,
+                item.managerName,
+                item.rotation,
+                new Date(item.timestamp).toLocaleDateString(),
+                item.jobKnowledge || '',
+                item.qualityOfWork || '',
+                item.communication || '',
+                item.initiative || '',
+                item.compositeScore ? item.compositeScore.toFixed(2) : ''
+            ]);
+            
+            const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+            this.downloadFile(csvContent, `mdp-admin-export-${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
+        };
+
+        AdminPanel.prototype.exportJSON = function() {
+            const jsonContent = JSON.stringify({
+                exportDate: new Date().toISOString(),
+                totalRecords: this.data.length,
+                statistics: this.stats,
+                data: this.data
+            }, null, 2);
+            
+            this.downloadFile(jsonContent, `mdp-admin-export-${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+        };
+
+        AdminPanel.prototype.downloadFile = function(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+
+        // Initialize admin panel
+        document.addEventListener('DOMContentLoaded', () => {
+            window.admin = new AdminPanel();
+        });
+    </script>
+</body>
+</html>

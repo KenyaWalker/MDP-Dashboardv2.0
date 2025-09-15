@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDP Performance Survey - Sam's Club</title>
+    <link rel="icon" type="image/png" href="SC_Logo_Symbol_RGB_WHT.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0062AD 0%, #11224B 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .header img {
+            height: 60px;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            color: #0062AD;
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #11224B;
+            font-size: 1.1em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #E1E8ED;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #FAFBFC;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0062AD;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0, 98, 173, 0.1);
+        }
+
+        .rating-section {
+            background: #F8FAFF;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid #E3F2FD;
+        }
+
+        .rating-section h3 {
+            color: #0062AD;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+
+        .rating-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #35C4EC;
+        }
+
+        .rating-label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #11224B;
+        }
+
+        .rating-scale {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .rating-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border: 2px solid #E1E8ED;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            min-width: 80px;
+        }
+
+        .rating-option:hover {
+            border-color: #0062AD;
+            transform: translateY(-2px);
+        }
+
+        .rating-option input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .rating-option.selected {
+            background: #0062AD;
+            border-color: #0062AD;
+            color: white;
+        }
+
+        .function-specific {
+            background: #FFF8E1;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid #FFE082;
+            display: none;
+        }
+
+        .function-specific.active {
+            display: block;
+        }
+
+        .function-specific h3 {
+            color: #F57F17;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #0062AD 0%, #00358E 100%);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 30px;
+            box-shadow: 0 6px 20px rgba(0, 98, 173, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 98, 173, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #E1E8ED;
+        }
+
+        .links a {
+            color: #0062AD;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: 2px solid #0062AD;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .links a:hover {
+            background: #0062AD;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f44336;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .rating-scale {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .rating-option {
+                justify-content: space-between;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="SC_Logo_Symbol_RGB_WHT.png" alt="Sam's Club Logo">
+        <h1>MDP Performance Evaluation</h1>
+        <p>Management Development Program Assessment Survey</p>
+    </div>
+
+    <div class="container">
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <form id="surveyForm">
+            <div class="form-group">
+                <label for="mdpName">MDP Name <span class="required">*</span></label>
+                <input type="text" id="mdpName" name="mdpName" required placeholder="Enter full name">
+            </div>
+
+            <div class="form-group">
+                <label for="function">MDP Function <span class="required">*</span></label>
+                <select id="function" name="function" required>
+                    <option value="">Select function...</option>
+                    <option value="Planning">Planning</option>
+                    <option value="Digital Merch">Digital Merch</option>
+                    <option value="Replenishment">Replenishment</option>
+                    <option value="Member's Mark">Member's Mark</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="managerName">Manager Name <span class="required">*</span></label>
+                <input type="text" id="managerName" name="managerName" required placeholder="Enter manager's full name">
+            </div>
+
+            <div class="form-group">
+                <label for="rotation">Rotation Number <span class="required">*</span></label>
+                <select id="rotation" name="rotation" required>
+                    <option value="">Select rotation...</option>
+                    <option value="1">Rotation 1</option>
+                    <option value="2">Rotation 2</option>
+                    <option value="3">Rotation 3</option>
+                    <option value="4">Rotation 4</option>
+                    <option value="5">Rotation 5</option>
+                    <option value="6">Rotation 6</option>
+                </select>
+            </div>
+
+            <div class="rating-section">
+                <h3>Core Performance Assessment</h3>
+                <p style="text-align: center; color: #666; margin-bottom: 25px;">Rate each area on a scale of 1-5 (1 = Needs Improvement, 5 = Exceptional)</p>
+
+                <div class="rating-group">
+                    <label class="rating-label">Job Knowledge (50% weight) <span class="required">*</span></label>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="jobKnowledge" value="1" required>
+                            <span>1 - Needs Improvement</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="jobKnowledge" value="2" required>
+                            <span>2 - Below Expectations</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="jobKnowledge" value="3" required>
+                            <span>3 - Meets Expectations</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="jobKnowledge" value="4" required>
+                            <span>4 - Exceeds Expectations</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="jobKnowledge" value="5" required>
+                            <span>5 - Exceptional</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="rating-group">
+                    <label class="rating-label">Quality of Work (20% weight) <span class="required">*</span></label>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="qualityOfWork" value="1" required>
+                            <span>1 - Needs Improvement</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="qualityOfWork" value="2" required>
+                            <span>2 - Below Expectations</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="qualityOfWork" value="3" required>
+                            <span>3 - Meets Expectations</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="qualityOfWork" value="4" required>
+                            <span>4 - Exceeds Expectations</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="qualityOfWork" value="5" required>
+                            <span>5 - Exceptional</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="rating-group">
+                    <label class="rating-label">Communication Skills & Teamwork (15% weight) <span class="required">*</span></label>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="communication" value="1" required>
+                            <span>1 - Needs Improvement</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="communication" value="2" required>
+                            <span>2 - Below Expectations</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="communication" value="3" required>
+                            <span>3 - Meets Expectations</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="communication" value="4" required>
+                            <span>4 - Exceeds Expectations</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="communication" value="5" required>
+                            <span>5 - Exceptional</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="rating-group">
+                    <label class="rating-label">Initiative & Productivity (15% weight) <span class="required">*</span></label>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="initiative" value="1" required>
+                            <span>1 - Needs Improvement</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="initiative" value="2" required>
+                            <span>2 - Below Expectations</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="initiative" value="3" required>
+                            <span>3 - Meets Expectations</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="initiative" value="4" required>
+                            <span>4 - Exceeds Expectations</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="initiative" value="5" required>
+                            <span>5 - Exceptional</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Function-specific sections -->
+            <div id="planningSpecific" class="function-specific">
+                <h3>Planning-Specific Assessment</h3>
+                <div class="rating-group">
+                    <label class="rating-label">P&L Management & Retail Math</label>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="1">
+                            <span>1</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="2">
+                            <span>2</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="3">
+                            <span>3</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="4">
+                            <span>4</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="5">
+                            <span>5</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="rating-group">
+                    <label class="rating-label">Financial Analysis & Planning Tools</label>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="1">
+                            <span>1</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="2">
+                            <span>2</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="3">
+                            <span>3</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="4">
+                            <span>4</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="5">
+                            <span>5</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="digitalMerchSpecific" class="function-specific">
+                <h3>Digital Merch-Specific Assessment</h3>
+                <div class="rating-group">
+                    <label class="rating-label">HAVE+FIND+LOVE+BUY Framework</label>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="1">
+                            <span>1</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="2">
+                            <span>2</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="3">
+                            <span>3</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="4">
+                            <span>4</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="5">
+                            <span>5</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="rating-group">
+                    <label class="rating-label">SEO & Omnichannel Strategy</label>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="1">
+                            <span>1</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="2">
+                            <span>2</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="3">
+                            <span>3</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="4">
+                            <span>4</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="5">
+                            <span>5</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="replenishmentSpecific" class="function-specific">
+                <h3>Replenishment-Specific Assessment</h3>
+                <div class="rating-group">
+                    <label class="rating-label">Demand Forecasting & Analytics</label>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="1">
+                            <span>1</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="2">
+                            <span>2</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="3">
+                            <span>3</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="4">
+                            <span>4</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="5">
+                            <span>5</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="rating-group">
+                    <label class="rating-label">Inventory Management & Optimization</label>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="1">
+                            <span>1</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="2">
+                            <span>2</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="3">
+                            <span>3</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="4">
+                            <span>4</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="5">
+                            <span>5</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="membersMarkSpecific" class="function-specific">
+                <h3>Member's Mark-Specific Assessment</h3>
+                <div class="rating-group">
+                    <label class="rating-label">Brand Strategy & Positioning</label>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="1">
+                            <span>1</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="2">
+                            <span>2</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="3">
+                            <span>3</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="4">
+                            <span>4</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific1" value="5">
+                            <span>5</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="rating-group">
+                    <label class="rating-label">Brand Guidelines & Standards</label>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="1">
+                            <span>1</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="2">
+                            <span>2</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="3">
+                            <span>3</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="4">
+                            <span>4</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="functionSpecific2" value="5">
+                            <span>5</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">Submit Evaluation</button>
+        </form>
+
+        <div class="links">
+            <a href="/dashboard.html">View Dashboard</a>
+            <a href="/admin.html">Admin Panel</a>
+        </div>
+    </div>
+
+    <script src="survey.js"></script>
+</body>
+</html>
